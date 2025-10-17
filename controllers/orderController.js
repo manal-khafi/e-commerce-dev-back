@@ -17,18 +17,19 @@ exports.createOrder = async (req, res) => {
         }, 0);
 
         // Create the new order
-        const Order = await Order.create({
+        const newOrder = await Order.create({
             idUtilisateur,
             listeProduits,
             statut: statut || 'en cours',
             prixTotal,
         });
 
-        res.status(201).json(Order);
+        res.status(201).json(newOrder);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Get all orders
 exports.getAllOrders = async (req, res) => {
