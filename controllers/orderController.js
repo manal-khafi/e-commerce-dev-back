@@ -1,5 +1,6 @@
-const Order = require('../models/order');
-const User = require('../models/user');
+const db = require('../models');
+const Order = db.order;
+const User = db.user;
 
 // Create a new order
 exports.createOrder = async (req, res) => {
@@ -12,9 +13,7 @@ exports.createOrder = async (req, res) => {
         }
 
         // Calculate total price
-        const prixTotal = listeProduits.reduce((total, item) => {
-            return total + (item.prix * item.quantite);
-        }, 0);
+        const prixTotal = listeProduits.reduce((total, item) => total + (item.prix * item.quantite), 0);
 
         // Create the new order
         const newOrder = await Order.create({
@@ -30,15 +29,16 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-
 // Get all orders
 exports.getAllOrders = async (req, res) => {
     try {
-        const Orders = await Order.findAll();
-        res.status(200).json(Orders);
-    } catch (error) {                                                   
+        const orders = await Order.findAll({
+            include: { model: User, attributes: ['id', 'nom', 'email'] }
+        });
+        res.status(200).json(orders);
+    } catch (error) {
         res.status(400).json({ error: error.message });
-    }   
+    }
 };
 
 // Get an order by ID

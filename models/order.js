@@ -1,38 +1,45 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const user = require('./user');
-const product = require('./product');
-
-const Order = sequelize.define('order', {
+// models/Order.js
+module.exports = (sequelize, DataTypes) => {
+  const Order = sequelize.define('order', {
     id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
     idUtilisateur: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    listeProduits:{
-        type: DataTypes.JSON,
-        allowNull: false,        
+    listeProduits: {
+      type: DataTypes.JSON,
+      allowNull: false,
     },
     dateCommande: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,  
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
     statut: {
-        type: DataTypes.STRING,
-        defaultValue: 'en cours',
+      type: DataTypes.STRING,
+      defaultValue: 'en cours',
     },
     prixTotal: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
+      type: DataTypes.FLOAT,
+      allowNull: false,
     },
-}, {
+  }, {
     tableName: 'orders',
-});
+  });
 
-user.hasMany(Order, { foreignKey: 'idUtilisateur' });
-Order.belongsTo(user, { foreignKey: 'idUtilisateur' });
-module.exports = Order;
+
+  Order.associate = (models) => {
+    Order.belongsTo(models.user, { foreignKey: 'idUtilisateur'});
+    Order.belongsTo(models.cart, { foreignKey: 'idcart'});
+    Order.belongsToMany(models.product, {
+      through: models.orderProduct,
+      foreignKey: 'orderId',
+      otherKey: 'productId',
+    });
+  };
+
+  return Order;
+};
